@@ -5,7 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '~/custom.css';
 import type { List } from "@prisma/client";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlayCircle } from "@fortawesome/free-regular-svg-icons";
+import { faFlag, faPlayCircle } from "@fortawesome/free-regular-svg-icons";
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
 
 export const meta: MetaFunction = () => {
   return [
@@ -61,11 +62,18 @@ export default function Index() {
                   <FontAwesomeIcon icon={faPlayCircle} /> 学習
                 </Link>
                 <Link
+                  to={`/flag/${list.id}`}
+                  className={`btn btn-warning me-2 ${list.quizzes.length === 0 ? "disabled" : ""}`}
+                  aria-disabled={list.quizzes.length === 0}
+                >
+                  <FontAwesomeIcon icon={faFlag} /> 反復
+                </Link>
+                <Link
                   to={`/play/${list.id}`}
                   className={`btn btn-success me-2 ${list.quizzes.length === 0 ? "disabled" : ""}`}
                   aria-disabled={list.quizzes.length === 0}
                 >
-                  確認テスト
+                  <FontAwesomeIcon icon={faPencil} /> 確認テスト
                 </Link>
               </td>
               <td>

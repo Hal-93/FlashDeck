@@ -6,6 +6,8 @@ import { getList } from "~/models/quiz.server";
 
 import type { Quiz, List } from "@prisma/client";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFlag } from "@fortawesome/free-solid-svg-icons";
 
 export const loader: LoaderFunction = async ({ params }) => {
   const list = await getList(parseInt(params.id || "", 10));
@@ -29,13 +31,11 @@ export default function PlayQuiz() {
   };
 
   const handleStarClick = async () => {
-    // クイズの isChecked 状態を更新するためのAPI呼び出し
     const response = await fetch(`/api/quizzes/${currentQuiz.id}/toggle-check`, {
       method: "POST",
     });
 
     if (response.ok) {
-      // フロントエンドでの状態反映
       const updatedQuizzes = quizzes.map((quiz, index) =>
         index === currentQuizIndex
           ? { ...quiz, isChecked: !quiz.isChecked }
@@ -52,7 +52,7 @@ export default function PlayQuiz() {
       setCurrentQuizIndex(currentQuizIndex + 1);
       setIsFlipped(false);
     } else {
-      navigate("/"); // 最後の問題の場合、/へリダイレクト
+      navigate("/");
     }
   };
 
@@ -63,12 +63,17 @@ export default function PlayQuiz() {
     }
   };
 
+  // プログレスバーの進捗を計算
+  const progressPercentage = ((currentQuizIndex + 1) / quizzes.length) * 100;
+
   return (
     <div className="content container">
       <h3>{list.name}</h3>
       <div className="card mt-5">
+        <div className="card-header">
+          <h5>{currentQuizIndex + 1}問目</h5>
+        </div>
         <div className="card-body">
-          <h5 className="card-title">問題 {currentQuizIndex + 1}/{quizzes.length}</h5>
           <p className="card-text" style={{ minHeight: '100px' }}>
             {isFlipped ? currentQuiz.answer : currentQuiz.problem}
           </p>
@@ -80,10 +85,17 @@ export default function PlayQuiz() {
               className={`btn ${currentQuiz.isChecked ? 'btn-warning' : 'btn-outline-warning'}`}
               onClick={handleStarClick}
             >
-              ★
+              <FontAwesomeIcon icon={faFlag} />
             </button>
           </div>
         </div>
+      </div>
+      <br />
+      <div className="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow={progressPercentage} aria-valuemin="0" aria-valuemax="100">
+        <div
+          className="progress-bar progress-bar-striped progress-bar-animated"
+          style={{ width: `${progressPercentage}%` }}
+        ></div>
       </div>
       <div className="d-flex justify-content-between mt-3">
         <button

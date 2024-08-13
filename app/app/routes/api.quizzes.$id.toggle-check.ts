@@ -9,6 +9,10 @@ export const action: ActionFunction = async ({ params }) => {
     await toggleQuizChecked(quizId);
     return json({ success: true });
   } catch (error) {
-    return json({ error: error.message }, { status: 400 });
+    let errorMessage = "An unknown error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    return json({ error: errorMessage }, { status: 400 });
   }
 };
