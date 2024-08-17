@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useLoaderData, useNavigate, Form } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
-import { getList, updateList, updateQuiz, addQuiz } from "~/models/quiz.server";
+import { getList, updateList, updateQuiz, addQuiz, deleteQuiz } from "~/models/quiz.server"; // サーバーサイドでのみ使用
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import type { Quiz, List } from "@prisma/client";
 
+// サーバーサイドでデータを取得
 export const loader: LoaderFunction = async ({ params }) => {
   const list = await getList(parseInt(params.id || "", 10));
   if (!list) {
@@ -14,6 +16,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   return json({ list });
 };
 
+// サーバーサイドでデータを操作
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData();
   const name = formData.get("name");
@@ -30,33 +33,31 @@ export const action: ActionFunction = async ({ request, params }) => {
     const answer = formData.get(`answer_${index}`) as string;
     const id = formData.get(`id_${index}`) as string;
     const isChecked = formData.get(`isChecked_${index}`) === "true";
+    const deleteFlag = formData.get(`delete_${index}`) === "true";
 
-    quizzes.push({ id, problem, answer, isChecked });
+    if (deleteFlag && id !== "0") {
+      // クイズを削除
+      await deleteQuiz(parseInt(id));
+    } else {
+      if (id && id !== "0") {
+        // 既存クイズの更新
+        await updateQuiz(parseInt(id), problem, answer, isChecked);
+      } else {
+        // 新規クイズの追加
+        await addQuiz(problem, answer, parseInt(params.id || "", 10));
+      }
+    }
+
     index++;
-  }
-
-  // 空のクイズが含まれている場合、エラーメッセージを返す
-  if (quizzes.some(quiz => !quiz.problem || !quiz.answer)) {
-    return json({ error: "空のクイズを保存できません。" }, { status: 400 });
   }
 
   // リスト名の更新
   await updateList(parseInt(params.id || "", 10), name);
 
-  // クイズの追加と更新
-  for (const quiz of quizzes) {
-    if (quiz.id && quiz.id !== "0") {
-      // 既存クイズの更新
-      await updateQuiz(parseInt(quiz.id), quiz.problem, quiz.answer, quiz.isChecked);
-    } else {
-      // 新規クイズの追加
-      await addQuiz(quiz.problem, quiz.answer, parseInt(params.id || "", 10));
-    }
-  }
-
   return redirect("/");
 };
 
+// クライアントサイドでデータを表示・編集
 export default function EditList() {
   const { list } = useLoaderData<{ list: List & { quizzes: Quiz[] } }>();
   const [quizzes, setQuizzes] = useState(list.quizzes);
@@ -69,12 +70,14 @@ export default function EditList() {
       setError("すべての設問に問題文と解答を入力してください。");
       return;
     }
-    setQuizzes([...quizzes, { id: 0, problem: "", answer: "", listId: list.id, isChecked: false }]);
+    setQuizzes([...quizzes, { id: "0", problem: "", answer: "", listId: list.id, isChecked: false }]);
     setError(null); // エラーメッセージをクリア
   };
 
   const removeQuiz = (index: number) => {
-    const updatedQuizzes = quizzes.filter((_, i) => i !== index);
+    const updatedQuizzes = quizzes.map((quiz, i) => 
+      i === index ? { ...quiz, deleteFlag: true } : quiz
+    );
     setQuizzes(updatedQuizzes);
   };
 
@@ -122,6 +125,7 @@ export default function EditList() {
               <tr key={index}>
                 <input type="hidden" name={`id_${index}`} value={quiz.id} />
                 <input type="hidden" name={`isChecked_${index}`} value={quiz.isChecked ? "true" : "false"} />
+                <input type="hidden" name={`delete_${index}`} value={quiz.deleteFlag ? "true" : "false"} />
                 <td>
                   <textarea
                     name={`problem_${index}`}

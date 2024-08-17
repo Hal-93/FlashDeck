@@ -60,9 +60,26 @@ export async function addQuiz(
 }
 
 export async function deleteQuiz(id: Quiz["id"]) {
-    return await prisma.quiz.delete({
-        where: { id },
-    });
+    try {
+        // クイズが存在するか確認
+        const quiz = await prisma.quiz.findUnique({
+            where: { id },
+        });
+
+        if (!quiz) {
+            console.error(`Quiz with ID ${id} not found`);
+            return;
+        }
+
+        // クイズを削除
+        await prisma.quiz.delete({
+            where: { id },
+        });
+
+        console.log(`Quiz with ID ${id} deleted successfully`);
+    } catch (error) {
+        console.error(`Failed to delete quiz with ID ${id}:`, error);
+    }
 }
 
 export async function updateQuiz(

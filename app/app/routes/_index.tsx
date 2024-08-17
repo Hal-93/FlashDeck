@@ -69,7 +69,7 @@ export default function Index() {
                   <FontAwesomeIcon icon={faFlag} /> 反復
                 </Link>
                 <Link
-                  to={`/play/${list.id}`}
+                  to={`/test/${list.id}`}
                   className={`btn btn-success me-2 ${list.quizzes.length === 0 ? "disabled" : ""}`}
                   aria-disabled={list.quizzes.length === 0}
                 >
