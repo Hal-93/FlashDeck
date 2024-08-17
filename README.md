@@ -1,9 +1,10 @@
-# FlashDeck v1.2.1
+# <img src="https://github.com/user-attachments/assets/62f632cd-0dd2-4581-8052-69c2731da83a" alt="Image" width="30" height="30">  FlashDeck v1.2.1 
 FlashDeckは、Reactベースで作られた単語カードとテストが一体化した暗記支援アプリです。
 
 # Usage
 ## 問題集
 単語カードのグループとして問題集を作ることができ、問題集ごとに単語カードを管理することができます。
+
 <img width="1014" alt="スクリーンショット 2024-08-17 18 11 39" src="https://github.com/user-attachments/assets/6f0e1b3e-cca9-4db2-acbc-7030ad5f147e">
 
 ## 単語カード作成
