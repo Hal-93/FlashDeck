@@ -1,3 +1,7 @@
+![image](https://img.shields.io/badge/-React-555.svg?logo=react&style=flat) 
+![image](https://img.shields.io/badge/-TypeScript-007ACC.svg?logo=typescript&style=flat)
+![image](https://img.shields.io/badge/-Bootstrap-563D7C.svg?logo=bootstrap&style=flat)
+
 # <img src="https://github.com/user-attachments/assets/62f632cd-0dd2-4581-8052-69c2731da83a" alt="Image" width="30" height="30">  FlashDeck v1.2.1 
 FlashDeckは、Reactベースで作られた単語カードとテストが一体化した暗記支援アプリです。
 
